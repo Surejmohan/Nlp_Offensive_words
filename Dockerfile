@@ -4,7 +4,7 @@ COPY requirements.txt .
 RUN pip install --upgrade pip
 RUN pip install wheel
 RUN pip install -r requirements.txt
-RUN pip3 install torch torchvision torchaudio --extra-index-url https://download.pytorch.org/whl/cpu
+RUN pip3 install torch --extra-index-url https://download.pytorch.org/whl/cpu --no-cache-dir
 
 FROM python:3.6
 
