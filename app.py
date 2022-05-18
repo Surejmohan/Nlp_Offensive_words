@@ -1,13 +1,19 @@
+from operator import mod
+from statistics import mode
+from tkinter.messagebox import NO
 import numpy as np
 from flask import Flask, jsonify, request
-# from scipy.special import softmax
-# from transformers import (AutoModelForSequenceClassification, AutoTokenizer)
+from scipy.special import softmax
+from transformers import (AutoModelForSequenceClassification, AutoTokenizer)
+import threading
+from multiprocessing import Process
 
 app = Flask(__name__)
-# MODEL = f"cardiffnlp/twitter-roberta-base-offensive"
-# tokenizer = AutoTokenizer.from_pretrained(MODEL)
+MODEL = f"cardiffnlp/twitter-roberta-base-offensive"
+tokenizer = AutoTokenizer.from_pretrained(MODEL)
+model = AutoModelForSequenceClassification.from_pretrained(MODEL)
+print("Loaded Models")
 
-# model = AutoModelForSequenceClassification.from_pretrained(MODEL)
 
 @app.route("/", methods=["GET", "POST"])
 def home():
@@ -17,26 +23,27 @@ def home():
     elif request.method == "POST":
         text = request.json.get("text")
 
-        # encoded_input = tokenizer(text, return_tensors="pt")
-        # output = model(**encoded_input)
-        # scores = output[0][0].detach().numpy()
-        # scores = softmax(scores)
-        # ranking = np.argsort(scores)
+        encoded_input = tokenizer(text, return_tensors="pt")
+        output = model(**encoded_input)
+        scores = output[0][0].detach().numpy()
+        scores = softmax(scores)
+        ranking = np.argsort(scores)
 
-        # return jsonify(
-        #     {
-        #         "not-offensive": str(scores[0]),
-        #         "offensive": str(scores[1]),
-        #     }
-        # )
         return jsonify(
             {
-                "not-offensive": 1,
-                "offensive": 1,
+                "not-offensive": str(scores[0]),
+                "offensive": str(scores[1]),
             }
         )
 
 
+
+def runApp():
+    app.run(host='0.0.0.0', port=5000)
+
+
 # driver function
 if __name__ == "__main__":
-    app.run(host='0.0.0.0', port=5000)
+    p1 = Process(target = runApp)
+    p1.start()
+    p1.join()
