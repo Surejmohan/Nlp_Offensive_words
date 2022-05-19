@@ -38,12 +38,6 @@ def home():
 
 
 
-def runApp():
-    app.run(host='0.0.0.0', port=5000)
-
-
 # driver function
 if __name__ == "__main__":
-    p1 = Process(target = runApp)
-    p1.start()
-    p1.join()
+    app.run(host='0.0.0.0', port=5000)
